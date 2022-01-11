@@ -8,6 +8,9 @@ const profileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    picture: {
+        type: Buffer,
+    },
     bio: {
         type: Text,
         required: true
