@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const cors = require('cors')
 
 // require route files
+const chatRoutes = require('./app/routes/chat_routes')
 const profileRoutes = require('./app/routes/profile_routes')
 const userRoutes = require('./app/routes/user_routes')
 
@@ -66,11 +67,27 @@ app.use(requestLogger)
 
 // register route files
 app.use(userRoutes)
+app.use(profileRoutes)
+app.use(chatRoutes)
 
 // register error handling middleware
 // note that this comes after the route middlewares, because it needs to be
 // passed any error messages from them
 app.use(errorHandler)
+
+//Socket.io
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+io.on('connection', function(socket){
+  console.log('a user connected');
+  socket.on('disconnect', function(){
+    console.log('User Disconnected');
+  });
+  socket.on('example_message', function(msg){
+    console.log('message: ' + msg);
+  });
+});
+io.listen(8080)
 
 // run API on designated port (4741 in this case)
 app.listen(port, () => {
