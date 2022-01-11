@@ -12,7 +12,7 @@ const profileSchema = new mongoose.Schema({
         type: Buffer,
     },
     bio: {
-        type: Text,
+        type: String,
         required: true
     },
     locations: {
