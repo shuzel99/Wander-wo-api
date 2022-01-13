@@ -23,51 +23,33 @@ const requireToken = passport.authenticate('bearer', { session: false })
 // instantiate router
 const router = express.Router()
 
-// GET ALL CHATS 
-router.get('/chats/all', (req, res, next) => {
-    Chat.find({
-        _id: {$in: req.body.userId}
+// CREATE CHAT  
+// takes two chat participants: sender & reciever
+router.post('/chat', async (req, res) => {
+    const newChat = new Chat({
+        members:[req.body.senderId, req.body.receiverId],
     })
-     .then((chats) => {
-        res.json(chats)
-     })
-    .catch(err => console.log(err))
+    try{
+        const savedConversation = await newChat.save()
+        res.status(200).json(savedConversation)
+    }catch(err){
+        res.status(500).json(err)
+    }
+    
 })
 
-//  GET ONE CHAT
-router.get('/chats/:userId/:chatId', (req, res, next) => {
-    Chat.findOne({
-        userId: req.params.userId
-    })
-    .then(handle404)
-    .then(foundchat => {
-        res.json(foundchat)
-    })
-    .catch(err => console.log(err))
+//  GET USER'S CHATS 
+// find all chats with a specific member's id and return
+router.get('/chat/:userId', async (req, res)=> {
+    try{
+        const chat = await Chat.find({
+            members: { $in: [req.params.userId]},
+        })
+        res.status(200).json(chat)
+    }catch (err) {
+        res.status(500).json(err)
+    }
 })
-
-//  CREATE CHAT
-router.post('/chat/:userId', requireToken, (req, res,next) => {
-    Chat.create({
-        userId: req.user._id,
-        likedUser: req.body.likedUser,
-        messages: req.body.messages
-    })    
-})
-
-// DELETE CHAT 
-router.delete('/chat/:userId/:chatId', requireToken, (req, res, next) => {
-    Chat.findOne({
-        userId: req.user._id
-    })
-    .then(handle404)
-    .then(foundChat => {
-        return foundChat.deleteOne()
-    })
-    .then(() => res.sendStatus(204))
-    .catch(next)
-})
-
 
 
 // // POST - create a chat document
@@ -122,4 +104,4 @@ router.delete('/chat/:userId/:chatId', requireToken, (req, res, next) => {
 //         .then(() => res.sendStatus(204))
 //         .catch(next)
 // })
-// module.exports = router
+module.exports = router

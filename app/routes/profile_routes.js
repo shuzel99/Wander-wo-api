@@ -26,55 +26,45 @@ const requireToken = passport.authenticate('bearer', { session: false })
 const router = express.Router()
 
 //  GET ALL USERS PROFILE
-router.get('/profile/all', requireToken, (req, res, next) => {
-    Profile.find({
-        _id: {$in: req.body.userId}
-    })
-    .then(handle404)
-    .then(foundUsers => {
-        res.json(foundUsers)
-    })
-    .catch(err => console.log(err))
+router.get('/profile/all', (req, res, next) => {
+    Profile.find()
+    .then((profiles) => {
+        res.status(200).json(profiles)
+    }) 
+    .catch(next)
 })
 
 //  GET ONE USER PROFILE    
-router.get('/profile/:userId', requireToken, (req, res, next) => {
-    Profile.findOne({
-        userId: req.params.userId
-    })
+router.get('/profile/:_id', (req, res, next) => {
+    Profile.find({_id: req.params._id})
     .then(handle404)
-    .then(foundProfile => {
-        res.json(foundProfile)
-    })
-    .catch(err => console.log(err))
+    // .then(foundProfile => {
+    //     requireOwnership(req, foundProfile)
+    //     return foundProfile
+    // })
+    .then(foundProfile => res.status(200).json(foundProfile))
+    .catch(next)
 })
 
 //  CREATE USER'S PROFILE 
-router.post('/profile', requireToken, (req, res, next) => {
-    Profile.create({
-        userId: req.user._id,
-        name: req.body.name,
-        picture: req.body.picture,
-        bio: req.body.bio,
-        locations: req.body.locations,
-        likedUsersId: req.body.likedUsersId,
+router.post('/profile', (req, res, next) => {
+    Profile.create(req.body)
+        .then(createdProfile => {
+        res.status(201).json({ profile: createdProfile.toObject() })
     })
-    .then(handle404)
-    .then(createdProfile => {
-        res.json(createdProfile)
-    })
-    .catch(err => console.log(err))
+    .catch(next)
 })
 
-//  EDIT USER'S PROFILE
-router.patch('/profile/:userId', requireToken, removeBlanks, (req, res, next) => {
-    Profile.findOneAndUpdate({userId: req.user._id},
-        req.body
-    )
+
+//  EDIT USER'S PROFILE- needs work
+router.patch('/profile/:_id', removeBlanks, (req, res, next) => {
+    Profile.find({_id: req.params._id})
     .then(handle404)
-    .then(patchResponse => {
-        res.json(patchResponse)
+    .then((patchResponse) => {
+        console.log(patchResponse)
+        return profile.updateOne(req.body.profile)
     })
+    .then(() => res.sendStatus(204))
     .catch(next)
 })
 
