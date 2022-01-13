@@ -3,7 +3,7 @@ const { text } = require('stream/consumers')
 
 const messageSchema = new mongoose.Schema(
     {
-       conversationId:{
+       chatId:{
            type: String
        },
        sender:{
