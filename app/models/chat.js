@@ -1,8 +1,6 @@
 const mongoose = require('mongoose')
 const { text } = require('stream/consumers')
 
-const Profile = require('./profile')
-
 const messageSchema = new mongoose.Schema({
     owner: {
         type: mongoose.Schema.Types.ObjectId,
@@ -21,7 +19,7 @@ const chatSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     }, 
-    owner: {
+    userId: {
         // this links the user Id
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

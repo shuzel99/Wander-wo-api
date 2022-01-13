@@ -23,66 +23,103 @@ const requireToken = passport.authenticate('bearer', { session: false })
 // instantiate router
 const router = express.Router()
 
-// GET - index route displays all chat document
-router.get('/chats', (req, res, next) => {
-    Chat.find()
-        .then((chats) => {
-            res.status(200).json(chats)
-        })
-        // .then((chat) => res.status(200).json({ chats: chats }))
-        .catch(next)
+// GET ALL CHATS 
+router.get('/chats/all', (req, res, next) => {
+    Chat.find({
+        _id: {$in: req.body.userId}
+    })
+     .then((chats) => {
+        res.json(chats)
+     })
+    .catch(err => console.log(err))
 })
 
-// POST - create a chat document
-router.post('/chats', (req, res, next) => {
-    Chat.create(req.body)
-        .then(createdChat => {
-            res.status(201).json({ chat: createdChat.toObject() })
-        })
-        .catch(next)
+//  GET ONE CHAT
+router.get('/chats/:userId/:chatId', (req, res, next) => {
+    Chat.findOne({
+        userId: req.params.userId
+    })
+    .then(handle404)
+    .then(foundchat => {
+        res.json(foundchat)
+    })
+    .catch(err => console.log(err))
 })
 
-// GET - show chats belonging to user
-router.get('/chats/:ownerId', (req,res,next) => {
-    Chat.find({owner: req.params.ownerId})
-        .then(handle404)
-        // .then(showChat => {
-        //     requireOwnership(req, showChat)
-        //     return showChat
-        // })
-        .then(showChat => res.status(200).json(showChat))
-        .catch(next)
+//  CREATE CHAT
+router.post('/chat/:userId', requireToken, (req, res,next) => {
+    Chat.create({
+        userId: req.user._id,
+        likedUser: req.body.likedUser,
+        messages: req.body.messages
+    })    
 })
 
-// PATCH - update a specific param in profile document
-router.patch('/chats/:id', removeBlanks, requireToken, (req, res, next) => {
-    // res.json({message: 'Update a profile document'})
-    //  ADD SOON
-    // delete req.body.profile.owner 
-    console.log(req.body)
-    Chat.findById(req.params.id)
-        .then(handle404)
-        .then(chat => {
-            requireOwnership(req, profile)
-            return chat.updateOne(req.body)
-        })
-        .then(() => res.sendStatus(204))
-        .catch(next)
+// DELETE CHAT 
+router.delete('/chat/:userId/:chatId', requireToken, (req, res, next) => {
+    Chat.findOne({
+        userId: req.user._id
+    })
+    .then(handle404)
+    .then(foundChat => {
+        return foundChat.deleteOne()
+    })
+    .then(() => res.sendStatus(204))
+    .catch(next)
 })
 
-// DELETE - show a single profile document
-router.delete('/chats/:id', (req, res, next) => {
-    // res.json({message: 'Delete a profile document'})
-    Chat.findById(req.params.id)
-        .then(handle404)
-        // .then(chat => {
-        //     requireOwnership(req, chat)
-        //     return chat
-        // })
-        .then(chat => {
-           chat.deleteOne()
-        })
-        .then(() => res.sendStatus(204))
-        .catch(next)
-})
-module.exports = router
+
+
+// // POST - create a chat document
+// router.post('/chats', (req, res, next) => {
+//     Chat.create(req.body)
+//         .then(createdChat => {
+//             res.status(201).json({ chat: createdChat.toObject() })
+//         })
+//         .catch(next)
+// })
+
+// // GET - show chats belonging to user
+// router.get('/chats/:ownerId', (req,res,next) => {
+//     Chat.find({owner: req.params.ownerId})
+//         .then(handle404)
+//         // .then(showChat => {
+//         //     requireOwnership(req, showChat)
+//         //     return showChat
+//         // })
+//         .then(showChat => res.status(200).json(showChat))
+//         .catch(next)
+// })
+
+// // PATCH - update a specific param in profile document
+// router.patch('/chats/:id', removeBlanks, requireToken, (req, res, next) => {
+//     // res.json({message: 'Update a profile document'})
+//     //  ADD SOON
+//     // delete req.body.profile.owner 
+//     console.log(req.body)
+//     Chat.findById(req.params.id)
+//         .then(handle404)
+//         .then(chat => {
+//             requireOwnership(req, profile)
+//             return chat.updateOne(req.body)
+//         })
+//         .then(() => res.sendStatus(204))
+//         .catch(next)
+// })
+
+// // DELETE - show a single profile document
+// router.delete('/chats/:id', (req, res, next) => {
+//     // res.json({message: 'Delete a profile document'})
+//     Chat.findById(req.params.id)
+//         .then(handle404)
+//         // .then(chat => {
+//         //     requireOwnership(req, chat)
+//         //     return chat
+//         // })
+//         .then(chat => {
+//            chat.deleteOne()
+//         })
+//         .then(() => res.sendStatus(204))
+//         .catch(next)
+// })
+// module.exports = router
