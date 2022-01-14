@@ -2,7 +2,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
-const socketIO = require('socket.io')
+
 
 // require route files
 const chatRoutes = require('./app/routes/chat_routes')
@@ -36,6 +36,20 @@ mongoose.connect(db, {
 
 // instantiate express application object
 const app = express()
+
+//Socket.io
+const http = require('http').createServer(app)
+const io = require('socket.io')(http)
+	io.on('connection', socket => {
+  	socket.on('message', ({name, message}) => {
+	  io.emit('message', {name, message})
+  })
+})
+
+http.listen(4000, function() {
+	console.log('caught you in 4k')
+})
+
 
 // set CORS headers on response from this API using the `cors` NPM package
 // `CLIENT_ORIGIN` is an environment variable that will be set on Heroku
@@ -78,19 +92,7 @@ app.use(messageRoutes)
 // passed any error messages from them
 app.use(errorHandler)
 
-//Socket.io
-// const http = require('http').Server(app);
-// const io = require('socket.io')(http);
-// io.on('connection', function(socket){
-//   console.log('a user connected');
-//   socket.on('disconnect', function(){
-//     console.log('User Disconnected');
-//   });
-//   socket.on('example_message', function(msg){
-//     console.log('message: ' + msg);
-//   });
-// });
-// io.listen(8080)
+
 
 // run API on designated port (4741 in this case)
 app.listen(port, () => {

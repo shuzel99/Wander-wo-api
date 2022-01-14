@@ -103,52 +103,6 @@ router.delete('/profile/:userId', requireToken, (req, res, next) => {
 
 
 
-// // GET - index route displays all profile document
-// router.get('/profiles', (req, res, next) => {
-//     Profile.find()
-//         .then((profiles) => {
-//             res.status(200).json(profiles)
-//         })
-//         // .then((profiles) => res.status(200).json({ profiles: profiles }))
-//         .catch(next)
-// })
-
-// // POST - create a profile document
-// router.post('/profiles', (req, res, next) => {
-//     Profile.create(req.body)
-//         .then(createdProfile => {
-//             res.status(201).json({ profile: createdProfile.toObject() })
-//         })
-//         .catch(next)
-// })
-
-// // GET - show profile belonging to user
-// router.get('/profiles/:ownerId', (req,res,next) => {
-//     Profile.find({owner: req.params.ownerId})
-//         .then(handle404)
-//         // .then(showProfile => {
-//         //     requireOwnership(req, showProfile)
-//         //     return showProfile
-//         // })
-//         .then(showProfile => res.status(200).json(showProfile))
-//         .catch(next)
-// })
-
-// // PATCH - update a specific param in profile document
-// router.patch('/profiles/:id', removeBlanks, requireToken, (req, res, next) => {
-//     // res.json({message: 'Update a profile document'})
-//     //  ADD SOON
-//     // delete req.body.profile.owner 
-//     console.log(req.body)
-//     Profile.findById(req.params.id)
-//         .then(handle404)
-//         .then(profile => {
-//             requireOwnership(req, profile)
-//             return profile.updateOne(req.body)
-//         })
-//         .then(() => res.sendStatus(204))
-//         .catch(next)
-// })
 
 // // DELETE - show a single profile document
 // router.delete('/profiles/:id', (req, res, next) => {
